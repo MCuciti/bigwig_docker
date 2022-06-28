@@ -1,0 +1,29 @@
+
+server {
+  listen 443 ssl;
+  server_name blog.cuciti.net;  
+  location /wp-login.php {
+        proxy_pass http://10.10.0.42;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-Server $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header Host $host;
+	allow 10.10.0.0/24;	
+	allow 192.168.0.0/23;
+	deny all;
+		}
+  location / {
+	proxy_pass http://10.10.0.42;
+	proxy_set_header X-Forwarded-Host $host;
+	proxy_set_header X-Forwarded-Server $host;
+	proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+	proxy_set_header X-Forwarded-Proto $scheme;
+	proxy_set_header X-Real-IP $remote_addr;
+	proxy_set_header Host $host;
+		}
+  ssl_certificate /etc/letsencrypt/live/blog.cuciti.net/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/blog.cuciti.net/privkey.pem;
+	}
+

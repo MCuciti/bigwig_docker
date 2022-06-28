@@ -1,0 +1,22 @@
+services:
+  watchtower:
+    container_name: watchtower
+    hostname: watchtower
+    image: containrrr/watchtower
+    environment:
+      - TZ=America/New_York
+      - WATCHTOWER_SCHEDULE=0 0 4 * * *
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+  nginx:
+    image: nginx
+    container_name: nginx
+    hostname: nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - "/home/milton/appdata/nginx:/etc/nginx:ro"
+      - "/etc/letsencrypt:/etc/letsencrypt:ro"

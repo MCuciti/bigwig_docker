@@ -1,0 +1,101 @@
+services:
+  watchtower:
+    container_name: watchtower
+    hostname: watchtower
+    image: containrrr/watchtower:latest
+    environment:
+      - TZ=America/New_York
+      - WATCHTOWER_SCHEDULE=0 0 4 * * *
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    restart: unless-stopped
+  plex:
+    container_name: plex
+    hostname: plex
+    image: lscr.io/linuxserver/plex:latest
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - VERSION=docker
+    volumes:
+      - ${APPDATA_PATH}/plex/config:/config
+      - /zpools/zpool-big/tv:/tv:ro
+      - /zpools/zpool-big/movies:/movies:ro
+    ports:
+      - 32400:32400
+      - 1900:1900
+      - 3005:3005
+      - 5353:5353
+      - 8324:8324
+      - 32410:32410
+      - 32412:32412
+      - 32413:32413
+      - 32414:32414
+      - 32469:32469
+    restart: unless-stopped
+  overseerr:
+    image: lscr.io/linuxserver/overseerr:latest
+    container_name: overseerr
+    hostname: overseerr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /home/milton/appdata/overseerr/config:/config
+    ports:
+      - 5055:5055
+    restart: unless-stopped
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    hostname: sonarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /home/milton/appdata/sonarr/config:/config
+      - /zpools/zpool-big/tv:/tv #optional
+      - /zpools/nvme/torrents:/torrents #optional
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    hostname: radarr
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=America/New_York
+    volumes:
+      - /home/milton/appdata/radarr/config:/config
+      - /zpools/zpool-big/movies:/movies #optional
+      - /zpools/nvme/torrents:/torrents #optional
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+  transmission-vpn:
+    image: haugene/transmission-openvpn
+    container_name: transmission
+    hostname: transmission
+    cap_add:
+        - NET_ADMIN
+    volumes:
+        - '/your/storage/path/:/data'
+    environment:
+        - OPENVPN_PROVIDER=PIA
+        - OPENVPN_CONFIG=france
+        - OPENVPN_USERNAME=user
+        - OPENVPN_PASSWORD=pass
+        - LOCAL_NETWORK=192.168.0.0/16
+    logging:
+        driver: json-file
+        options:
+            max-size: 10m
+    ports:
+        - '9091:9091'
+networks:
+  default:
+    name: vlan1010
