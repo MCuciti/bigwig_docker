@@ -81,21 +81,28 @@ services:
     container_name: transmission
     hostname: transmission
     cap_add:
-        - NET_ADMIN
-    volumes:
-        - '/your/storage/path/:/data'
+      - NET_ADMIN
     environment:
-        - OPENVPN_PROVIDER=PIA
-        - OPENVPN_CONFIG=france
-        - OPENVPN_USERNAME=user
-        - OPENVPN_PASSWORD=pass
-        - LOCAL_NETWORK=192.168.0.0/16
-    logging:
-        driver: json-file
-        options:
-            max-size: 10m
-    ports:
-        - '9091:9091'
+      - OPENVPN_PROVIDER=PIA
+      - OPENVPN_CONFIG=ca_montreal,ca_ontario,ca_toronto,ca_vancouver
+      - OPENVPN_USERNAME=${PIA_USERNAME}
+      - OPENVPN_PASSWORD=${PIA_PASSWORD}
+      - LOCAL_NETWORK=192.168.0.0/16
+      - TRANSMISSION_DOWNLOAD_DIR="/torrents/completed"
+      - TRANSMISSION_INCOMPLETE_DIR="/torrents/incomplete"
+      - TRANSMISSION_WATCH_DIR_ENABLED=false
+      - TRANSMISSION_INCOMPLETE_DIR_ENABLED=true
+      - TRANSMISSION_RPC_USERNAME=${TRANSMISSION_USERNAME}
+      - TRANSMISSION_RPC_PASSWORD=${TRANSMISSION_PASSWORD}
+      - TRANSMISSION_RPC_AUTHENTICATION_REQUIRED=true
+    volumes:
+      - /zpools/nvme/torrents:/torrents
+      - ${APPDATA_PATH}/transmission/data:/data
+    networks:
+      - default
+      - backend
+
+
 networks:
   default:
     name: vlan1010
